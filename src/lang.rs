@@ -145,115 +145,116 @@ impl FromStr for UnicodeLanguageIdentifier {
     }
 }
 
-/**
- * Unit tests
- */
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-#[test]
-fn success_parse_unicode_language_id() {
-    // full case
-    let result = parse_unicode_language_id("en-Latn-US-macos-windows-linux").unwrap();
-    assert_eq!(result.language, "en");
-    assert_eq!(result.script, Some("Latn".to_string()));
-    assert_eq!(result.region, Some("US".to_string()));
-    assert_eq!(
-        result.variants,
-        Some(vec![
-            "macos".to_string(),
-            "windows".to_string(),
-            "linux".to_string()
-        ])
-    );
+    #[test]
+    fn success_parse_unicode_language_id() {
+        // full case
+        let result = parse_unicode_language_id("en-Latn-US-macos-windows-linux").unwrap();
+        assert_eq!(result.language, "en");
+        assert_eq!(result.script, Some("Latn".to_string()));
+        assert_eq!(result.region, Some("US".to_string()));
+        assert_eq!(
+            result.variants,
+            Some(vec![
+                "macos".to_string(),
+                "windows".to_string(),
+                "linux".to_string()
+            ])
+        );
 
-    // use sep with underscore
-    let result = parse_unicode_language_id("en_Latn_US").unwrap();
-    assert_eq!(result.language, "en");
-    assert_eq!(result.script, Some("Latn".to_string()));
-    assert_eq!(result.region, Some("US".to_string()));
+        // use sep with underscore
+        let result = parse_unicode_language_id("en_Latn_US").unwrap();
+        assert_eq!(result.language, "en");
+        assert_eq!(result.script, Some("Latn".to_string()));
+        assert_eq!(result.region, Some("US".to_string()));
 
-    // language subtag only
-    let result = parse_unicode_language_id("en").unwrap();
-    assert_eq!(result.language, "en");
-    assert_eq!(result.script, None);
-    assert_eq!(result.region, None);
-    assert_eq!(result.variants, None);
+        // language subtag only
+        let result = parse_unicode_language_id("en").unwrap();
+        assert_eq!(result.language, "en");
+        assert_eq!(result.script, None);
+        assert_eq!(result.region, None);
+        assert_eq!(result.variants, None);
 
-    // language subtag and region subtag
-    let result = parse_unicode_language_id("en-US").unwrap();
-    assert_eq!(result.language, "en");
-    assert_eq!(result.script, None);
-    assert_eq!(result.region, Some("US".to_string()));
-    assert_eq!(result.variants, None);
+        // language subtag and region subtag
+        let result = parse_unicode_language_id("en-US").unwrap();
+        assert_eq!(result.language, "en");
+        assert_eq!(result.script, None);
+        assert_eq!(result.region, Some("US".to_string()));
+        assert_eq!(result.variants, None);
 
-    // language subtag and script subtag
-    let result = parse_unicode_language_id("en-Latn").unwrap();
-    assert_eq!(result.language, "en");
-    assert_eq!(result.script, Some("Latn".to_string()));
-    assert_eq!(result.region, None);
-    assert_eq!(result.variants, None);
+        // language subtag and script subtag
+        let result = parse_unicode_language_id("en-Latn").unwrap();
+        assert_eq!(result.language, "en");
+        assert_eq!(result.script, Some("Latn".to_string()));
+        assert_eq!(result.region, None);
+        assert_eq!(result.variants, None);
 
-    // language subtag and variant subtag
-    let result = parse_unicode_language_id("en-macos").unwrap();
-    assert_eq!(result.language, "en");
-    assert_eq!(result.script, None);
-    assert_eq!(result.region, None);
-    assert_eq!(result.variants, Some(vec!["macos".to_string()]));
+        // language subtag and variant subtag
+        let result = parse_unicode_language_id("en-macos").unwrap();
+        assert_eq!(result.language, "en");
+        assert_eq!(result.script, None);
+        assert_eq!(result.region, None);
+        assert_eq!(result.variants, Some(vec!["macos".to_string()]));
 
-    // language subtag, script subtag and region subtag
-    let result = parse_unicode_language_id("en-Latn-US").unwrap();
-    assert_eq!(result.language, "en");
-    assert_eq!(result.script, Some("Latn".to_string()));
-    assert_eq!(result.region, Some("US".to_string()));
-    assert_eq!(result.variants, None);
+        // language subtag, script subtag and region subtag
+        let result = parse_unicode_language_id("en-Latn-US").unwrap();
+        assert_eq!(result.language, "en");
+        assert_eq!(result.script, Some("Latn".to_string()));
+        assert_eq!(result.region, Some("US".to_string()));
+        assert_eq!(result.variants, None);
 
-    // language subtag: 'root'
-    let result = parse_unicode_language_id("root").unwrap();
-    assert_eq!(result.language, "");
-    assert_eq!(result.script, None);
-    assert_eq!(result.region, None);
-    assert_eq!(result.variants, None);
+        // language subtag: 'root'
+        let result = parse_unicode_language_id("root").unwrap();
+        assert_eq!(result.language, "");
+        assert_eq!(result.script, None);
+        assert_eq!(result.region, None);
+        assert_eq!(result.variants, None);
 
-    // include language subtag: 'und'
-    let result = parse_unicode_language_id("und-Latn-AT-macos").unwrap();
-    assert_eq!(result.language, "");
-    assert_eq!(result.script, Some("Latn".to_string()));
-    assert_eq!(result.region, Some("AT".to_string()));
-    assert_eq!(result.variants, Some(vec!["macos".to_string()]));
+        // include language subtag: 'und'
+        let result = parse_unicode_language_id("und-Latn-AT-macos").unwrap();
+        assert_eq!(result.language, "");
+        assert_eq!(result.script, Some("Latn".to_string()));
+        assert_eq!(result.region, Some("AT".to_string()));
+        assert_eq!(result.variants, Some(vec!["macos".to_string()]));
 
-    // Display trait implementation
-    assert_eq!(
-        "en-Latn-US-macos",
-        format!("{}", parse_unicode_language_id("en-Latn-US-macos").unwrap())
-    );
-    assert_eq!(
-        "und-Latn-US-macos",
-        format!(
-            "{}",
-            parse_unicode_language_id("und-Latn-US-macos").unwrap()
-        )
-    );
+        // Display trait implementation
+        assert_eq!(
+            "en-Latn-US-macos",
+            format!("{}", parse_unicode_language_id("en-Latn-US-macos").unwrap())
+        );
+        assert_eq!(
+            "und-Latn-US-macos",
+            format!(
+                "{}",
+                parse_unicode_language_id("und-Latn-US-macos").unwrap()
+            )
+        );
 
-    // PartialEq trait implementation
-    assert_eq!(
-        parse_unicode_language_id("en-Latn-US").unwrap(),
-        parse_unicode_language_id("en-Latn-US").unwrap()
-    );
+        // PartialEq trait implementation
+        assert_eq!(
+            parse_unicode_language_id("en-Latn-US").unwrap(),
+            parse_unicode_language_id("en-Latn-US").unwrap()
+        );
 
-    // FromStr trait implementation
-    let result: UnicodeLanguageIdentifier = "en-Latn-US-macos".parse().unwrap();
-    assert_eq!("en", result.language);
-    assert_eq!(Some("Latn".to_string()), result.script);
-    assert_eq!(Some("US".to_string()), result.region);
-    assert_eq!(Some(vec!["macos".to_string()]), result.variants);
-    let result: UnicodeLanguageIdentifier = "en-Latn-US".parse().unwrap();
-    assert_eq!("en-Latn-US", format!("{}", result));
-}
+        // FromStr trait implementation
+        let result: UnicodeLanguageIdentifier = "en-Latn-US-macos".parse().unwrap();
+        assert_eq!("en", result.language);
+        assert_eq!(Some("Latn".to_string()), result.script);
+        assert_eq!(Some("US".to_string()), result.region);
+        assert_eq!(Some(vec!["macos".to_string()]), result.variants);
+        let result: UnicodeLanguageIdentifier = "en-Latn-US".parse().unwrap();
+        assert_eq!("en-Latn-US", format!("{}", result));
+    }
 
-#[test]
-fn fail_parse_unicode_language_id() {
-    // missing language
-    assert_eq!(
-        ParserError::Missing,
-        parse_unicode_language_id("").unwrap_err()
-    );
+    #[test]
+    fn fail_parse_unicode_language_id() {
+        // missing language
+        assert_eq!(
+            ParserError::Missing,
+            parse_unicode_language_id("").unwrap_err()
+        );
+    }
 }

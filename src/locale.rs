@@ -80,50 +80,51 @@ pub fn parse_unicode_locale_id(locale_id: &str) -> Result<UnicodeLocaleIdentifie
     })
 }
 
-/*
- * Unit tests
- */
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-#[test]
-fn success_parse_unicode_locale_id() {
-    // basic
-    let locale = parse_unicode_locale_id("en-US-u-hc-h12").unwrap();
-    assert_eq!("en", locale.language.language);
-    assert_eq!(None, locale.language.script);
-    assert_eq!(Some("US".to_string()), locale.language.region);
-    assert_eq!(None, locale.language.variants);
-    let u = locale.extensions.unicode_locale.unwrap();
-    assert_eq!(
-        &vec!["h12".to_string()],
-        u.get(0).unwrap().ufield.get("hc").unwrap()
-    );
+    #[test]
+    fn success_parse_unicode_locale_id() {
+        // basic
+        let locale = parse_unicode_locale_id("en-US-u-hc-h12").unwrap();
+        assert_eq!("en", locale.language.language);
+        assert_eq!(None, locale.language.script);
+        assert_eq!(Some("US".to_string()), locale.language.region);
+        assert_eq!(None, locale.language.variants);
+        let u = locale.extensions.unicode_locale.unwrap();
+        assert_eq!(
+            &vec!["h12".to_string()],
+            u.get(0).unwrap().ufield.get("hc").unwrap()
+        );
 
-    // full case
-    let locale = parse_unicode_locale_id("ja-Latn-JP-macos-U-attr1-kz-value2-t-en-Latn-US-linux-t1-value1-value2-a-vue-rust-x-foo-123")
+        // full case
+        let locale = parse_unicode_locale_id("ja-Latn-JP-macos-U-attr1-kz-value2-t-en-Latn-US-linux-t1-value1-value2-a-vue-rust-x-foo-123")
             .unwrap();
-    assert_eq!("ja-Latn-JP-macos", format!("{}", locale.language));
-    assert_eq!(
-        "u-attr1-kz-value2-t-en-Latn-US-linux-t1-value1-value2-a-vue-rust-x-foo-123",
-        format!("{}", locale.extensions)
-    );
+        assert_eq!("ja-Latn-JP-macos", format!("{}", locale.language));
+        assert_eq!(
+            "u-attr1-kz-value2-t-en-Latn-US-linux-t1-value1-value2-a-vue-rust-x-foo-123",
+            format!("{}", locale.extensions)
+        );
 
-    // Display trait implementation
-    assert_eq!(
+        // Display trait implementation
+        assert_eq!(
         "ja-Latn-JP-macos-u-attr1-kz-value2-t-en-Latn-US-linux-t1-value1-value2-a-vue-rust-x-foo-123",
         format!("{}", parse_unicode_locale_id("ja-Latn-JP-macos-U-attr1-kz-value2-t-en-Latn-US-linux-t1-value1-value2-a-vue-rust-x-foo-123")
             .unwrap())
     );
 
-    // FromStr trait implementation
-    let result: UnicodeLocaleIdentifier = "ja-Latn-JP".parse().unwrap();
-    assert_eq!("ja-Latn-JP", format!("{}", result));
-}
+        // FromStr trait implementation
+        let result: UnicodeLocaleIdentifier = "ja-Latn-JP".parse().unwrap();
+        assert_eq!("ja-Latn-JP", format!("{}", result));
+    }
 
-#[test]
-fn fail_parse_unicode_locale_id() {
-    // missing locale
-    assert_eq!(
-        ParserError::Missing,
-        parse_unicode_locale_id("").unwrap_err()
-    );
+    #[test]
+    fn fail_parse_unicode_locale_id() {
+        // missing locale
+        assert_eq!(
+            ParserError::Missing,
+            parse_unicode_locale_id("").unwrap_err()
+        );
+    }
 }

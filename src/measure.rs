@@ -86,44 +86,45 @@ fn parse_unicode_measure_unit_from_iter<'a>(
     Ok(UnicodeMeasureUnit { values })
 }
 
-/*
- * Unit tests
- */
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-#[test]
-fn success_parse_unicode_measure_unit() {
-    // basic
-    let measure = parse_unicode_measure_unit("area-hectare").unwrap();
-    assert_eq!(vec!["area", "hectare"], measure.values);
+    #[test]
+    fn success_parse_unicode_measure_unit() {
+        // basic
+        let measure = parse_unicode_measure_unit("area-hectare").unwrap();
+        assert_eq!(vec!["area", "hectare"], measure.values);
 
-    // Display trait implementation
-    assert_eq!(
-        "area-hectare",
-        format!("{}", parse_unicode_measure_unit("area-hectare").unwrap())
-    );
+        // Display trait implementation
+        assert_eq!(
+            "area-hectare",
+            format!("{}", parse_unicode_measure_unit("area-hectare").unwrap())
+        );
 
-    // PartialEq trait implementation
-    assert_eq!(
-        parse_unicode_measure_unit("area-hectare").unwrap(),
-        parse_unicode_measure_unit("area-hectare").unwrap()
-    );
+        // PartialEq trait implementation
+        assert_eq!(
+            parse_unicode_measure_unit("area-hectare").unwrap(),
+            parse_unicode_measure_unit("area-hectare").unwrap()
+        );
 
-    // FromStr trait implementation
-    let measure: UnicodeMeasureUnit = "area-hectare".parse().unwrap();
-    assert_eq!(vec!["area", "hectare"], measure.values);
-}
+        // FromStr trait implementation
+        let measure: UnicodeMeasureUnit = "area-hectare".parse().unwrap();
+        assert_eq!(vec!["area", "hectare"], measure.values);
+    }
 
-#[test]
-fn fail_parse_unicode_measure_unit() {
-    // missing
-    assert_eq!(
-        ParserError::Missing,
-        parse_unicode_measure_unit("").unwrap_err()
-    );
+    #[test]
+    fn fail_parse_unicode_measure_unit() {
+        // missing
+        assert_eq!(
+            ParserError::Missing,
+            parse_unicode_measure_unit("").unwrap_err()
+        );
 
-    // invalid subtag
-    assert_eq!(
-        ParserError::InvalidSubtag,
-        parse_unicode_measure_unit("acceleration-g-force").unwrap_err()
-    );
+        // invalid subtag
+        assert_eq!(
+            ParserError::InvalidSubtag,
+            parse_unicode_measure_unit("acceleration-g-force").unwrap_err()
+        );
+    }
 }

@@ -77,137 +77,138 @@ pub fn variant_subtag(subtag: &str) -> Result<&str, ParserError> {
     }
 }
 
-/**
- * Unit tests
- */
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-#[test]
-fn success_language_subtag() {
-    // 'root'
-    assert_eq!(LANG_EMPTY, language_subtag("root").unwrap());
+    #[test]
+    fn success_language_subtag() {
+        // 'root'
+        assert_eq!(LANG_EMPTY, language_subtag("root").unwrap());
 
-    // language subtag only
-    assert_eq!("en", language_subtag("en").unwrap());
+        // language subtag only
+        assert_eq!("en", language_subtag("en").unwrap());
 
-    // 3 characters
-    assert_eq!("jpn", language_subtag("jpn").unwrap());
+        // 3 characters
+        assert_eq!("jpn", language_subtag("jpn").unwrap());
 
-    // 'und'
-    assert_eq!(LANG_EMPTY, language_subtag("und").unwrap());
-}
+        // 'und'
+        assert_eq!(LANG_EMPTY, language_subtag("und").unwrap());
+    }
 
-#[test]
-fn fail_get_language_subtag() {
-    // 1 character
-    assert_eq!(
-        ParserError::InvalidLanguage,
-        language_subtag("i").unwrap_err()
-    );
+    #[test]
+    fn fail_get_language_subtag() {
+        // 1 character
+        assert_eq!(
+            ParserError::InvalidLanguage,
+            language_subtag("i").unwrap_err()
+        );
 
-    // 4 characters
-    assert_eq!(
-        ParserError::InvalidLanguage,
-        language_subtag("food").unwrap_err()
-    );
+        // 4 characters
+        assert_eq!(
+            ParserError::InvalidLanguage,
+            language_subtag("food").unwrap_err()
+        );
 
-    // 9 characters
-    assert_eq!(
-        ParserError::InvalidLanguage,
-        language_subtag("unicodela").unwrap_err()
-    );
+        // 9 characters
+        assert_eq!(
+            ParserError::InvalidLanguage,
+            language_subtag("unicodela").unwrap_err()
+        );
 
-    // not alphabet
-    assert_eq!(
-        ParserError::InvalidLanguage,
-        language_subtag("12").unwrap_err()
-    );
-}
+        // not alphabet
+        assert_eq!(
+            ParserError::InvalidLanguage,
+            language_subtag("12").unwrap_err()
+        );
+    }
 
-#[test]
-fn success_script_subtag() {
-    assert_eq!("Latn", script_subtag("Latn").unwrap());
-}
+    #[test]
+    fn success_script_subtag() {
+        assert_eq!("Latn", script_subtag("Latn").unwrap());
+    }
 
-#[test]
-fn fail_script_subtag() {
-    // 3 character
-    assert_eq!(
-        ParserError::InvalidSubtag,
-        script_subtag("foo").unwrap_err()
-    );
+    #[test]
+    fn fail_script_subtag() {
+        // 3 character
+        assert_eq!(
+            ParserError::InvalidSubtag,
+            script_subtag("foo").unwrap_err()
+        );
 
-    // 5 characters
-    assert_eq!(
-        ParserError::InvalidSubtag,
-        script_subtag("Japan").unwrap_err()
-    );
+        // 5 characters
+        assert_eq!(
+            ParserError::InvalidSubtag,
+            script_subtag("Japan").unwrap_err()
+        );
 
-    // not alphabet
-    assert_eq!(
-        ParserError::InvalidSubtag,
-        script_subtag("123").unwrap_err()
-    );
-}
+        // not alphabet
+        assert_eq!(
+            ParserError::InvalidSubtag,
+            script_subtag("123").unwrap_err()
+        );
+    }
 
-#[test]
-fn success_region_subtag() {
-    // ascii alphabet
-    assert_eq!("JP", region_subtag("JP").unwrap());
+    #[test]
+    fn success_region_subtag() {
+        // ascii alphabet
+        assert_eq!("JP", region_subtag("JP").unwrap());
 
-    // 3 digit number
-    assert_eq!("001", region_subtag("001").unwrap());
-}
+        // 3 digit number
+        assert_eq!("001", region_subtag("001").unwrap());
+    }
 
-#[test]
-fn fail_region_subtag() {
-    // 1 character
-    assert_eq!(ParserError::InvalidSubtag, region_subtag("J").unwrap_err());
+    #[test]
+    fn fail_region_subtag() {
+        // 1 character
+        assert_eq!(ParserError::InvalidSubtag, region_subtag("J").unwrap_err());
 
-    // 3 ascii characters
-    assert_eq!(
-        ParserError::InvalidSubtag,
-        region_subtag("JPN").unwrap_err()
-    );
+        // 3 ascii characters
+        assert_eq!(
+            ParserError::InvalidSubtag,
+            region_subtag("JPN").unwrap_err()
+        );
 
-    // 4 digit characters
-    assert_eq!(
-        ParserError::InvalidSubtag,
-        region_subtag("1234").unwrap_err()
-    );
-}
+        // 4 digit characters
+        assert_eq!(
+            ParserError::InvalidSubtag,
+            region_subtag("1234").unwrap_err()
+        );
+    }
 
-#[test]
-fn success_variant_subtag() {
-    // 4 characters with digit
-    assert_eq!("1996", variant_subtag("1996").unwrap());
+    #[test]
+    fn success_variant_subtag() {
+        // 4 characters with digit
+        assert_eq!("1996", variant_subtag("1996").unwrap());
 
-    // 4 characters with digit & alphabet
-    assert_eq!("1ABC", variant_subtag("1ABC").unwrap());
+        // 4 characters with digit & alphabet
+        assert_eq!("1ABC", variant_subtag("1ABC").unwrap());
 
-    // 5 characters with alphabet and digit
-    assert_eq!("abcd1", variant_subtag("abcd1").unwrap());
+        // 5 characters with alphabet and digit
+        assert_eq!("abcd1", variant_subtag("abcd1").unwrap());
 
-    // 8 characters with alphabet and digit
-    assert_eq!("abcdefgh", variant_subtag("abcdefgh").unwrap());
-}
+        // 8 characters with alphabet and digit
+        assert_eq!("abcdefgh", variant_subtag("abcdefgh").unwrap());
+    }
 
-#[test]
-fn fail_variant_subtag() {
-    // 3 characters
-    assert_eq!(
-        ParserError::InvalidSubtag,
-        variant_subtag("abc").unwrap_err()
-    );
+    #[test]
+    fn fail_variant_subtag() {
+        // 3 characters
+        assert_eq!(
+            ParserError::InvalidSubtag,
+            variant_subtag("abc").unwrap_err()
+        );
 
-    // 9 characters
-    assert_eq!(
-        ParserError::InvalidSubtag,
-        variant_subtag("abcdefghi").unwrap_err()
-    );
+        // 9 characters
+        assert_eq!(
+            ParserError::InvalidSubtag,
+            variant_subtag("abcdefghi").unwrap_err()
+        );
 
-    // 4 characters with alphabet
-    assert_eq!(
-        ParserError::InvalidSubtag,
-        variant_subtag("aBCD").unwrap_err()
-    );
+        // 4 characters with alphabet
+        assert_eq!(
+            ParserError::InvalidSubtag,
+            variant_subtag("aBCD").unwrap_err()
+        );
+    }
 }

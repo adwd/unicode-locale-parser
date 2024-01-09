@@ -95,64 +95,63 @@ pub fn parse_transformed_extensions<'a>(
     Ok(TransformedExtensions { tlang, tfield })
 }
 
-/*
- * Unit tests
- */
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::shared::split_str;
 
-#[allow(unused_imports)] // for unit tests
-use crate::shared::split_str;
+    #[test]
+    fn success_transformed_extensions() {
+        // basic case
+        let mut iter = split_str("en-US-a1-foo").peekable();
+        assert_eq!(
+            "t-en-US-a1-foo",
+            format!("{}", parse_transformed_extensions(&mut iter).unwrap())
+        );
 
-#[test]
-fn success_transformed_extensions() {
-    // basic case
-    let mut iter = split_str("en-US-a1-foo").peekable();
-    assert_eq!(
-        "t-en-US-a1-foo",
-        format!("{}", parse_transformed_extensions(&mut iter).unwrap())
-    );
+        // no tlang
+        let mut iter = split_str("a1-foo").peekable();
+        assert_eq!(
+            "t-a1-foo",
+            format!("{}", parse_transformed_extensions(&mut iter).unwrap())
+        );
 
-    // no tlang
-    let mut iter = split_str("a1-foo").peekable();
-    assert_eq!(
-        "t-a1-foo",
-        format!("{}", parse_transformed_extensions(&mut iter).unwrap())
-    );
+        // tvalue multiple
+        let mut iter = split_str("en-a1-foo-b1-bar").peekable();
+        assert_eq!(
+            "t-en-a1-foo-b1-bar",
+            format!("{}", parse_transformed_extensions(&mut iter).unwrap())
+        );
 
-    // tvalue multiple
-    let mut iter = split_str("en-a1-foo-b1-bar").peekable();
-    assert_eq!(
-        "t-en-a1-foo-b1-bar",
-        format!("{}", parse_transformed_extensions(&mut iter).unwrap())
-    );
+        // tlang only
+        let mut iter = split_str("en-Latn-US-macos").peekable();
+        assert_eq!(
+            "t-en-Latn-US-macos",
+            format!("{}", parse_transformed_extensions(&mut iter).unwrap())
+        );
+    }
 
-    // tlang only
-    let mut iter = split_str("en-Latn-US-macos").peekable();
-    assert_eq!(
-        "t-en-Latn-US-macos",
-        format!("{}", parse_transformed_extensions(&mut iter).unwrap())
-    );
-}
+    #[test]
+    fn fail_transformed_extensions() {
+        // invalid tkey
+        let mut iter = split_str("1a-foo").peekable();
+        assert_eq!(
+            ParserError::InvalidSubtag,
+            parse_transformed_extensions(&mut iter).unwrap_err()
+        );
 
-#[test]
-fn fail_transformed_extensions() {
-    // invalid tkey
-    let mut iter = split_str("1a-foo").peekable();
-    assert_eq!(
-        ParserError::InvalidSubtag,
-        parse_transformed_extensions(&mut iter).unwrap_err()
-    );
+        // missing tkey
+        let mut iter = split_str("foo").peekable();
+        assert_eq!(
+            ParserError::InvalidSubtag,
+            parse_transformed_extensions(&mut iter).unwrap_err()
+        );
 
-    // missing tkey
-    let mut iter = split_str("foo").peekable();
-    assert_eq!(
-        ParserError::InvalidSubtag,
-        parse_transformed_extensions(&mut iter).unwrap_err()
-    );
-
-    // missing tvalue
-    let mut iter = split_str("a1-foo-b1").peekable();
-    assert_eq!(
-        ParserError::InvalidSubtag,
-        parse_transformed_extensions(&mut iter).unwrap_err()
-    );
+        // missing tvalue
+        let mut iter = split_str("a1-foo-b1").peekable();
+        assert_eq!(
+            ParserError::InvalidSubtag,
+            parse_transformed_extensions(&mut iter).unwrap_err()
+        );
+    }
 }

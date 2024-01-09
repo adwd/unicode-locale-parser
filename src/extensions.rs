@@ -157,115 +157,108 @@ pub fn parse_extensions_from_iter<'a>(
     })
 }
 
-/**
- * Tests
- */
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-#[test]
-fn success_parse_extensions() {
-    // basic
-    let extensions = parse_extensions(
-        "U-attr1-kz-value2-t-en-Latn-US-macos-t1-value1-value2-a-vue-rust-x-foo-123",
-    )
-    .unwrap();
-    let unicode_locale = extensions.unicode_locale.unwrap();
-    assert_eq!(
-        ["u-attr1-kz-value2"],
-        unicode_locale
-            .iter()
-            .map(|u| format!("{}", u))
-            .collect::<Vec<String>>()
-            .as_slice()
-    );
-    let transformed = extensions.transformed.unwrap();
-    assert_eq!(
-        ["t-en-Latn-US-macos-t1-value1-value2"],
-        transformed
-            .iter()
-            .map(|t| format!("{}", t))
-            .collect::<Vec<String>>()
-            .as_slice()
-    );
-    let other = extensions.other.unwrap();
-    assert_eq!(
-        ["a-vue-rust"],
-        other
-            .iter()
-            .map(|o| format!("{}", o))
-            .collect::<Vec<String>>()
-            .as_slice()
-    );
-    let pu = extensions.pu.unwrap();
-    assert_eq!("x-foo-123", format!("{}", pu));
-
-    // Display trait implementation
-    assert_eq!(
-        "u-attr1-kz-value2-t-en-Latn-US-macos-t1-value1-value2-a-vue-rust-x-foo-123",
-        format!(
-            "{}",
-            parse_extensions(
-                "U-attr1-kz-value2-t-en-Latn-US-macos-t1-value1-value2-a-vue-rust-x-foo-123",
-            )
-            .unwrap()
+    #[test]
+    fn success_parse_extensions() {
+        // basic
+        let extensions = parse_extensions(
+            "U-attr1-kz-value2-t-en-Latn-US-macos-t1-value1-value2-a-vue-rust-x-foo-123",
         )
-    );
-}
+        .unwrap();
+        let unicode_locale = extensions.unicode_locale.unwrap();
+        assert_eq!(
+            ["u-attr1-kz-value2"],
+            unicode_locale
+                .iter()
+                .map(|u| format!("{}", u))
+                .collect::<Vec<String>>()
+                .as_slice()
+        );
+        let transformed = extensions.transformed.unwrap();
+        assert_eq!(
+            ["t-en-Latn-US-macos-t1-value1-value2"],
+            transformed
+                .iter()
+                .map(|t| format!("{}", t))
+                .collect::<Vec<String>>()
+                .as_slice()
+        );
+        let other = extensions.other.unwrap();
+        assert_eq!(
+            ["a-vue-rust"],
+            other
+                .iter()
+                .map(|o| format!("{}", o))
+                .collect::<Vec<String>>()
+                .as_slice()
+        );
+        let pu = extensions.pu.unwrap();
+        assert_eq!("x-foo-123", format!("{}", pu));
 
-/*
- * Unit tests
- */
+        // Display trait implementation
+        assert_eq!(
+            "u-attr1-kz-value2-t-en-Latn-US-macos-t1-value1-value2-a-vue-rust-x-foo-123",
+            format!(
+                "{}",
+                parse_extensions(
+                    "U-attr1-kz-value2-t-en-Latn-US-macos-t1-value1-value2-a-vue-rust-x-foo-123",
+                )
+                .unwrap()
+            )
+        );
+    }
 
-#[test]
-fn fail_parse_unicode_extensions() {
-    // missing locale
-    assert_eq!(ParserError::Missing, parse_extensions("").unwrap_err());
-}
+    #[test]
+    fn fail_parse_unicode_extensions() {
+        // missing locale
+        assert_eq!(ParserError::Missing, parse_extensions("").unwrap_err());
+    }
 
-#[test]
-fn success_extension_kind_from_byte() {
-    assert_eq!(
-        ExtensionKind::UnicodeLocale,
-        ExtensionKind::from_byte(b'u').unwrap()
-    );
-    assert_eq!(
-        ExtensionKind::Transformed,
-        ExtensionKind::from_byte(b't').unwrap()
-    );
-    assert_eq!(
-        ExtensionKind::Transformed,
-        ExtensionKind::from_byte(b'T').unwrap()
-    );
-    assert_eq!(ExtensionKind::Pu, ExtensionKind::from_byte(b'x').unwrap());
-    assert_eq!(
-        ExtensionKind::Other('a'),
-        ExtensionKind::from_byte(b'a').unwrap()
-    );
-    assert_eq!(
-        ExtensionKind::Other('1'),
-        ExtensionKind::from_byte(b'1').unwrap()
-    );
-}
+    #[test]
+    fn success_extension_kind_from_byte() {
+        assert_eq!(
+            ExtensionKind::UnicodeLocale,
+            ExtensionKind::from_byte(b'u').unwrap()
+        );
+        assert_eq!(
+            ExtensionKind::Transformed,
+            ExtensionKind::from_byte(b't').unwrap()
+        );
+        assert_eq!(
+            ExtensionKind::Transformed,
+            ExtensionKind::from_byte(b'T').unwrap()
+        );
+        assert_eq!(ExtensionKind::Pu, ExtensionKind::from_byte(b'x').unwrap());
+        assert_eq!(
+            ExtensionKind::Other('a'),
+            ExtensionKind::from_byte(b'a').unwrap()
+        );
+        assert_eq!(
+            ExtensionKind::Other('1'),
+            ExtensionKind::from_byte(b'1').unwrap()
+        );
+    }
 
-/**
- * Unit tests
- */
+    #[test]
+    fn fail_extension_kind_from_byte() {
+        assert_eq!(
+            ParserError::InvalidExtension,
+            ExtensionKind::from_byte(b'!').unwrap_err()
+        );
+        assert_eq!(
+            ParserError::InvalidExtension,
+            ExtensionKind::from_byte(b' ').unwrap_err()
+        );
+    }
 
-#[test]
-fn fail_extension_kind_from_byte() {
-    assert_eq!(
-        ParserError::InvalidExtension,
-        ExtensionKind::from_byte(b'!').unwrap_err()
-    );
-    assert_eq!(
-        ParserError::InvalidExtension,
-        ExtensionKind::from_byte(b' ').unwrap_err()
-    );
-}
-
-#[test]
-fn extention_kind_display() {
-    assert_eq!("u", format!("{}", ExtensionKind::UnicodeLocale));
-    assert_eq!("t", format!("{}", ExtensionKind::Transformed));
-    assert_eq!("x", format!("{}", ExtensionKind::Pu));
-    assert_eq!("a", format!("{}", ExtensionKind::Other('a')));
+    #[test]
+    fn extention_kind_display() {
+        assert_eq!("u", format!("{}", ExtensionKind::UnicodeLocale));
+        assert_eq!("t", format!("{}", ExtensionKind::Transformed));
+        assert_eq!("x", format!("{}", ExtensionKind::Pu));
+        assert_eq!("a", format!("{}", ExtensionKind::Other('a')));
+    }
 }

@@ -53,36 +53,35 @@ fn parse_value(subtag: &str) -> Result<&str, ParserError> {
     }
 }
 
-/**
- * Unit tests
- */
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::shared::split_str;
 
-#[allow(unused_imports)] // for unit tests
-use crate::shared::split_str;
+    #[test]
+    fn success_other_extensions() {
+        // full case
+        let mut iter = split_str("abc-123").peekable();
+        assert_eq!(
+            vec!["abc", "123"],
+            parse_other_extensions(&mut iter, 'a').unwrap().values
+        );
 
-#[test]
-fn success_other_extensions() {
-    // full case
-    let mut iter = split_str("abc-123").peekable();
-    assert_eq!(
-        vec!["abc", "123"],
-        parse_other_extensions(&mut iter, 'a').unwrap().values
-    );
+        // Display trait implementation
+        let mut iter = split_str("abc-123").peekable();
+        assert_eq!(
+            "b-abc-123",
+            format!("{}", parse_other_extensions(&mut iter, 'b').unwrap())
+        );
+    }
 
-    // Display trait implementation
-    let mut iter = split_str("abc-123").peekable();
-    assert_eq!(
-        "b-abc-123",
-        format!("{}", parse_other_extensions(&mut iter, 'b').unwrap())
-    );
-}
-
-#[test]
-fn fail_pu_extensions() {
-    // invalid subtag
-    let mut iter = split_str("abc-123456789").peekable();
-    assert_eq!(
-        ParserError::InvalidSubtag,
-        parse_other_extensions(&mut iter, '1').unwrap_err()
-    );
+    #[test]
+    fn fail_pu_extensions() {
+        // invalid subtag
+        let mut iter = split_str("abc-123456789").peekable();
+        assert_eq!(
+            ParserError::InvalidSubtag,
+            parse_other_extensions(&mut iter, '1').unwrap_err()
+        );
+    }
 }

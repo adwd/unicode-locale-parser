@@ -91,69 +91,68 @@ pub fn parse_unicode_locale_extensions<'a>(
     Ok(UnicodeLocaleExtensions { attribute, ufield })
 }
 
-/*
- * Unit tests
- */
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::shared::split_str;
 
-#[allow(unused_imports)] // for unit tests
-use crate::shared::split_str;
+    #[test]
+    fn success_unicode_locale_extensions() {
+        // basic case
+        let mut iter = split_str("attr1-ky-value1").peekable();
+        let result = parse_unicode_locale_extensions(&mut iter).unwrap();
+        assert_eq!("u-attr1-ky-value1", format!("{}", result));
 
-#[test]
-fn success_unicode_locale_extensions() {
-    // basic case
-    let mut iter = split_str("attr1-ky-value1").peekable();
-    let result = parse_unicode_locale_extensions(&mut iter).unwrap();
-    assert_eq!("u-attr1-ky-value1", format!("{}", result));
+        // no attribute
+        let mut iter = split_str("ky-value1").peekable();
+        assert_eq!(
+            "u-ky-value1",
+            format!("{}", parse_unicode_locale_extensions(&mut iter).unwrap())
+        );
 
-    // no attribute
-    let mut iter = split_str("ky-value1").peekable();
-    assert_eq!(
-        "u-ky-value1",
-        format!("{}", parse_unicode_locale_extensions(&mut iter).unwrap())
-    );
+        // attribute multiple
+        let mut iter = split_str("attr1-attr2-ky-value1").peekable();
+        assert_eq!(
+            "u-attr1-attr2-ky-value1",
+            format!("{}", parse_unicode_locale_extensions(&mut iter).unwrap())
+        );
 
-    // attribute multiple
-    let mut iter = split_str("attr1-attr2-ky-value1").peekable();
-    assert_eq!(
-        "u-attr1-attr2-ky-value1",
-        format!("{}", parse_unicode_locale_extensions(&mut iter).unwrap())
-    );
+        // uvalue multiple
+        let mut iter = split_str("ky-value1-value2").peekable();
+        assert_eq!(
+            "u-ky-value1-value2",
+            format!("{}", parse_unicode_locale_extensions(&mut iter).unwrap())
+        );
 
-    // uvalue multiple
-    let mut iter = split_str("ky-value1-value2").peekable();
-    assert_eq!(
-        "u-ky-value1-value2",
-        format!("{}", parse_unicode_locale_extensions(&mut iter).unwrap())
-    );
+        // no uvalue
+        let mut iter = split_str("ky").peekable();
+        assert_eq!(
+            "u-ky",
+            format!("{}", parse_unicode_locale_extensions(&mut iter).unwrap())
+        );
+    }
 
-    // no uvalue
-    let mut iter = split_str("ky").peekable();
-    assert_eq!(
-        "u-ky",
-        format!("{}", parse_unicode_locale_extensions(&mut iter).unwrap())
-    );
-}
+    #[test]
+    fn fail_unicode_locale_extensions() {
+        // invalid ukey
+        let mut iter = split_str("k1").peekable();
+        assert_eq!(
+            ParserError::InvalidSubtag,
+            parse_unicode_locale_extensions(&mut iter).unwrap_err()
+        );
 
-#[test]
-fn fail_unicode_locale_extensions() {
-    // invalid ukey
-    let mut iter = split_str("k1").peekable();
-    assert_eq!(
-        ParserError::InvalidSubtag,
-        parse_unicode_locale_extensions(&mut iter).unwrap_err()
-    );
+        // invalid uvalue
+        let mut iter = split_str("ky-{}").peekable();
+        assert_eq!(
+            ParserError::InvalidSubtag,
+            parse_unicode_locale_extensions(&mut iter).unwrap_err()
+        );
 
-    // invalid uvalue
-    let mut iter = split_str("ky-{}").peekable();
-    assert_eq!(
-        ParserError::InvalidSubtag,
-        parse_unicode_locale_extensions(&mut iter).unwrap_err()
-    );
-
-    // invalid attribute
-    let mut iter = split_str("ky-value1-{?}").peekable();
-    assert_eq!(
-        ParserError::InvalidSubtag,
-        parse_unicode_locale_extensions(&mut iter).unwrap_err()
-    );
+        // invalid attribute
+        let mut iter = split_str("ky-value1-{?}").peekable();
+        assert_eq!(
+            ParserError::InvalidSubtag,
+            parse_unicode_locale_extensions(&mut iter).unwrap_err()
+        );
+    }
 }

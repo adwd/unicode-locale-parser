@@ -97,69 +97,70 @@ fn region_index(chunks: &[u8]) -> Result<usize, ParserError> {
     }
 }
 
-/*
- * Unit tests
- */
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-#[test]
-fn success_parse_unicode_subdivision_id() {
-    // alpha region + suffix
-    let subdivision = parse_unicode_subdivision_id("ussct").unwrap();
-    assert_eq!("us", subdivision.region);
-    assert_eq!("sct", subdivision.suffix);
+    #[test]
+    fn success_parse_unicode_subdivision_id() {
+        // alpha region + suffix
+        let subdivision = parse_unicode_subdivision_id("ussct").unwrap();
+        assert_eq!("us", subdivision.region);
+        assert_eq!("sct", subdivision.suffix);
 
-    // digit region + suffix
-    let subdivision = parse_unicode_subdivision_id("123abcd").unwrap();
-    assert_eq!("123", subdivision.region);
-    assert_eq!("abcd", subdivision.suffix);
+        // digit region + suffix
+        let subdivision = parse_unicode_subdivision_id("123abcd").unwrap();
+        assert_eq!("123", subdivision.region);
+        assert_eq!("abcd", subdivision.suffix);
 
-    // Display trait implementation
-    assert_eq!(
-        "123abcd",
-        format!("{}", parse_unicode_subdivision_id("123abcd").unwrap())
-    );
+        // Display trait implementation
+        assert_eq!(
+            "123abcd",
+            format!("{}", parse_unicode_subdivision_id("123abcd").unwrap())
+        );
 
-    // PartialEq trait implementation
-    assert_eq!(
-        parse_unicode_subdivision_id("123abcd").unwrap(),
-        parse_unicode_subdivision_id("123abcd").unwrap()
-    );
+        // PartialEq trait implementation
+        assert_eq!(
+            parse_unicode_subdivision_id("123abcd").unwrap(),
+            parse_unicode_subdivision_id("123abcd").unwrap()
+        );
 
-    // FromStr trait implementation
-    let subdivision: UnicodeSubdivisionIdentifier = "ussct".parse().unwrap();
-    assert_eq!("us", subdivision.region);
-    assert_eq!("sct", subdivision.suffix);
-}
+        // FromStr trait implementation
+        let subdivision: UnicodeSubdivisionIdentifier = "ussct".parse().unwrap();
+        assert_eq!("us", subdivision.region);
+        assert_eq!("sct", subdivision.suffix);
+    }
 
-#[test]
-fn fail_parse_unicode_subdivision_id() {
-    // missing
-    assert_eq!(
-        ParserError::Missing,
-        parse_unicode_subdivision_id("").unwrap_err()
-    );
+    #[test]
+    fn fail_parse_unicode_subdivision_id() {
+        // missing
+        assert_eq!(
+            ParserError::Missing,
+            parse_unicode_subdivision_id("").unwrap_err()
+        );
 
-    // 2 characters
-    assert_eq!(
-        ParserError::InvalidSubdivision,
-        parse_unicode_subdivision_id("ab").unwrap_err()
-    );
+        // 2 characters
+        assert_eq!(
+            ParserError::InvalidSubdivision,
+            parse_unicode_subdivision_id("ab").unwrap_err()
+        );
 
-    // 8 characters
-    assert_eq!(
-        ParserError::InvalidSubdivision,
-        parse_unicode_subdivision_id("12312345").unwrap_err()
-    );
+        // 8 characters
+        assert_eq!(
+            ParserError::InvalidSubdivision,
+            parse_unicode_subdivision_id("12312345").unwrap_err()
+        );
 
-    // invalid region
-    assert_eq!(
-        ParserError::InvalidSubdivision,
-        parse_unicode_subdivision_id("1b123").unwrap_err()
-    );
+        // invalid region
+        assert_eq!(
+            ParserError::InvalidSubdivision,
+            parse_unicode_subdivision_id("1b123").unwrap_err()
+        );
 
-    // invalid suffix
-    assert_eq!(
-        ParserError::InvalidSubdivision,
-        parse_unicode_subdivision_id("ab{}").unwrap_err()
-    );
+        // invalid suffix
+        assert_eq!(
+            ParserError::InvalidSubdivision,
+            parse_unicode_subdivision_id("ab{}").unwrap_err()
+        );
+    }
 }
